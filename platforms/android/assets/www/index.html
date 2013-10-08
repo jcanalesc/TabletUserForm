@@ -28,24 +28,48 @@
                     <input type="text" class="form-control" id="f_name" placeholder="Nombre de cliente">
                   </div>
                   <div class="form-group">
+                    <label for="f_apellido">Apellido</label>
+                    <input type="text" class="form-control" id="f_apellido" placeholder="Apellido de cliente">
+                  </div>
+                  <div class="form-group">
                     <label for="f_rut">Rut</label>
-                    <input type="text" class="form-control" id="f_rut" placeholder="Rut de cliente">
+                    <input type="number" class="form-control" id="f_rut" placeholder="Rut de cliente">
                   </div>
                   <div class="form-group">
                     <label for="f_email">Correo electrónico</label>
                     <input type="email" class="form-control" id="f_email" placeholder="Email">
                   </div>
+                  <div class="form-group">
+                    <label for="f_edad">Edad</label>
+                    <input type="number" class="form-control" id="f_edad" min="0" max="90" step="1" value="18">
+                  </div>
+                  <div class="form-group">
+                    <label for="f_sexo">Sexo</label>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="sexo" id="sexoH" value="H" checked>
+                            Hombre
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="sexo" id="sexoM" value="M">
+                            Mujer
+                        </label>
+                    </div>
+                  </div>
                 </form>
-                <button class="btn btn-info btn-lg btn-block">Limpiar</button>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <a href="#" class="thumbnail" id="f_foto">
-                        <img data-src="js/holder.js/300x168" id="img-preview">
+                        <img data-src="js/holder.js/100%x200/auto" id="img-preview">
                     </a>
+                    
                     <center><label for="f_foto">Toque para tomar foto</label></center>
                 </div>
                 <button class="btn btn-primary btn-lg btn-block" id="btn_reg">Registrar</button>
+                <button class="btn btn-success btn-lg btn-block" id="btn_download">Bajar foto</button>
             </div>
         </div>
     </div>
@@ -56,28 +80,78 @@
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/holder.js"></script>
     <script type="text/javascript" src="phonegap.js"></script>
+    <script type="text/javascript" src="js/Blob.js"></script>
+    <script type="text/javascript" src="js/canvas-toBlob.js"></script>
+    <script type="text/javascript" src="js/FileSaver.js"></script>
     <script type="text/javascript">
     function errorhandler(err)
     {
-        console.log("db error! : " + err);
+        alert("db error! : " + err.message);
     }
     function successhandler()
     {
-        console.log("good");
+        console.log("ok");
     }
+    /*
     function querySuccess(tx, results)
     {
         alert(results.insertId);
     }
+    */
+    function opendb()
+    {
+        return window.openDatabase("userdb", "1.0", "Users DB", 20*1024*1024);
+    }
+    function clear_form()
+    {
+        $("input[type='text']").val("");
+        $("#f_edad, #f_email, #f_rut").val("");
+
+        $("#img-preview").attr("src", "js/holder.js/100%x200/auto");
+    }
+
     $(function()
     {
         document.addEventListener("deviceready", function()
         {
-            var dbhandler = window.openDatabase("userdb", "1.0", "Users DB", 2*1024*1024); // 2 MB
-            dbhandler.transaction(function(tx)
+            opendb().transaction(function(tx)
             {
-                tx.executeSQL("CREATE TABLE IF NOT EXISTS users (rut varchar(15), nombre varchar(150), foto varchar(200))");
+                tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, foto)");
             }, errorhandler, successhandler);
+
+            $("#btn_download").on("click", function(ev)
+            {
+                try
+                {
+                    ev.preventDefault();
+                   var img = new Image();
+                    img.src = $("#img-preview").attr("src");
+                    img.onload = function () 
+                    {
+                        var canvas = document.createElement("canvas");
+                        canvas.width =this.width;
+                        canvas.height =this.height;
+
+                        var ctx = canvas.getContext("2d");
+                        ctx.drawImage(this, 0, 0);
+
+
+                        canvas.toBlob(function(blob)
+                        {
+                            saveAs(blob, "pic.png");
+                        });
+                    }; 
+                }
+                catch(e)
+                {
+                    alert(e);
+                }
+            });
+
+            $("#btn_clean").on("click", function(ev)
+            {
+                clear_form();
+            });
 
             $("#f_foto").on("click", function(ev)
             {
@@ -105,11 +179,31 @@
             {
                 var nombre = $("#f_name").val();
                 var rut = $("#f_rut").val();
-                var foto = $("#img-preview").attr("src");
-                dbhandler.transaction(function(tx)
+                var img = new Image();
+                img.src = $("#img-preview").attr("src");
+                img.onload = function () 
                 {
-                    tx.executeSQL('INSERT INTO users (rut, nombre, foto) VALUES ("'+rut+'","'+nombre+'","'+foto+'")', [], querySuccess, null);
-                }, errorhandler, successhandler);
+                    var canvas = document.createElement("canvas");
+                    canvas.width =this.width;
+                    canvas.height =this.height;
+
+                    var ctx = canvas.getContext("2d");
+                    ctx.drawImage(this, 0, 0);
+
+
+                    var dataURL = canvas.toDataURL("image/png");
+
+                    var foto = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+                    opendb().transaction(function(tx)
+                    {
+                        tx.executeSql('INSERT INTO users (rut, nombre, foto) VALUES ("'+rut+'","'+nombre+'","'+foto+'")');
+                    }, errorhandler, function()
+                    {
+                        alert("Cliente ingresado.");
+                        clear_form();
+                    });
+                };
             });
         },false);
     });

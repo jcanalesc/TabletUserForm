@@ -116,7 +116,10 @@
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/plugins/org.apache.cordova.camera/www/CameraPopoverHandle.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/plugins/org.apache.cordova.camera/www/CameraConstants.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/img/logo.png \
+/home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/FileSaver.js \
+/home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/Blob.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/index.js \
+/home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/canvas-toBlob.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/holder.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/jquery.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/css/index.css \
