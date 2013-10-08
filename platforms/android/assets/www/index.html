@@ -11,6 +11,13 @@
       <script src="assets/js/html5shiv.js"></script>
       <script src="assets/js/respond.min.js"></script>
     <![endif]-->
+    <style type="text/css">
+    #img-preview
+    {
+        width: 100%;
+        max-width: 270px;
+    }
+    </style>
   </head>
   <!--
   nombre
@@ -33,7 +40,7 @@
                   </div>
                   <div class="form-group">
                     <label for="f_rut">Rut</label>
-                    <input type="number" class="form-control" id="f_rut" placeholder="Rut de cliente">
+                    <input type="text" class="form-control" id="f_rut" placeholder="Rut de cliente">
                   </div>
                   <div class="form-group">
                     <label for="f_email">Correo electrónico</label>
@@ -63,13 +70,14 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <a href="#" class="thumbnail" id="f_foto">
-                        <img data-src="js/holder.js/100%x200/auto" id="img-preview">
+                        <img id="img-preview">
                     </a>
                     
                     <center><label for="f_foto">Toque para tomar foto</label></center>
                 </div>
                 <button class="btn btn-primary btn-lg btn-block" id="btn_reg">Registrar</button>
                 <button class="btn btn-success btn-lg btn-block" id="btn_download">Bajar foto</button>
+                <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar con el servidor</button>
             </div>
         </div>
     </div>
@@ -84,14 +92,19 @@
     <script type="text/javascript" src="js/canvas-toBlob.js"></script>
     <script type="text/javascript" src="js/FileSaver.js"></script>
     <script type="text/javascript">
-    function errorhandler(err)
+
+    var height_placeholder = 0;
+    var lastSyncTimeStamp = 0;
+    function errorhandler()
     {
-        alert("db error! : " + err.message);
+        alert("db error!");
     }
     function successhandler()
     {
-        console.log("ok");
+        //console.log("ok");
+        alert("good");
     }
+    function nullHandler() {}
     /*
     function querySuccess(tx, results)
     {
@@ -100,89 +113,34 @@
     */
     function opendb()
     {
-        return window.openDatabase("userdb", "1.0", "Users DB", 20*1024*1024);
+        return window.openDatabase("usersdb", "1.0", "Users DB", 2*1024*1024);
     }
     function clear_form()
     {
         $("input[type='text']").val("");
-        $("#f_edad, #f_email, #f_rut").val("");
+        $("#f_edad, #f_email").val("");
 
-        $("#img-preview").attr("src", "js/holder.js/100%x200/auto");
+        $("#img-preview").attr("src", "js/holder.js/100%x"+height_placeholder);
+        Holder.run();
     }
 
     $(function()
     {
-        document.addEventListener("deviceready", function()
+        height_placeholder = $("#img-preview").width() / 9 * 16;
+        $("#img-preview").attr("data-src", "js/holder.js/100%x"+height_placeholder);
+        Holder.run();
+
+        $("#btn_download").on("click", function(ev)
         {
-            opendb().transaction(function(tx)
+            try
             {
-                tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, foto)");
-            }, errorhandler, successhandler);
-
-            $("#btn_download").on("click", function(ev)
-            {
-                try
-                {
-                    ev.preventDefault();
-                   var img = new Image();
-                    img.src = $("#img-preview").attr("src");
-                    img.onload = function () 
-                    {
-                        var canvas = document.createElement("canvas");
-                        canvas.width =this.width;
-                        canvas.height =this.height;
-
-                        var ctx = canvas.getContext("2d");
-                        ctx.drawImage(this, 0, 0);
-
-
-                        canvas.toBlob(function(blob)
-                        {
-                            saveAs(blob, "pic.png");
-                        });
-                    }; 
-                }
-                catch(e)
-                {
-                    alert(e);
-                }
-            });
-
-            $("#btn_clean").on("click", function(ev)
-            {
-                clear_form();
-            });
-
-            $("#f_foto").on("click", function(ev)
-            {
-                try
-                {
-                    ev.preventDefault();
-                    var onSuccess = function(imageURI)
-                    {
-                        $("#img-preview").attr("src", imageURI);
-                    };
-                    var onFail = function(msg)
-                    {
-                        alert(msg);
-                    };
-                    navigator.camera.getPicture(onSuccess, onFail, { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, correctOrientation: false, targetHeight: -1, targetWidth: -1, cameraDirection: navigator.camera.Direction.BACK });
-                }
-                catch(e)
-                {
-                    alert(e);
-                }
-                return false;
-
-            });
-            $("#btn_reg").click(function(ev)
-            {
-                var nombre = $("#f_name").val();
-                var rut = $("#f_rut").val();
-                var img = new Image();
+                console.log("btn on click");
+                ev.preventDefault();
+               var img = new Image();
                 img.src = $("#img-preview").attr("src");
                 img.onload = function () 
                 {
+                    //console.log("image onload");
                     var canvas = document.createElement("canvas");
                     canvas.width =this.width;
                     canvas.height =this.height;
@@ -191,20 +149,148 @@
                     ctx.drawImage(this, 0, 0);
 
 
-                    var dataURL = canvas.toDataURL("image/png");
-
-                    var foto = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
-
-                    opendb().transaction(function(tx)
+                    canvas.toBlob(function(blob)
                     {
-                        tx.executeSql('INSERT INTO users (rut, nombre, foto) VALUES ("'+rut+'","'+nombre+'","'+foto+'")');
-                    }, errorhandler, function()
-                    {
-                        alert("Cliente ingresado.");
-                        clear_form();
+                        saveAs(blob, "pic.png");
                     });
+                }; 
+            }
+            catch(e)
+            {
+                alert(e);
+            }
+        });
+        $("#btn_clean").on("click", function(ev)
+        {
+            clear_form();
+        });
+
+        $("#f_foto").on("click", function(ev)
+        {
+            try
+            {
+                ev.preventDefault();
+                var onSuccess = function(imageURI)
+                {
+                    $("#img-preview").attr("src", imageURI);
                 };
+                var onFail = function(msg)
+                {
+                    alert(msg);
+                };
+                navigator.camera.getPicture(onSuccess, onFail, { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, correctOrientation: true, saveToPhotoAlbum: true, targetHeight: -1, targetWidth: $("#img-preview").width()*2, cameraDirection: navigator.camera.Direction.BACK });
+            }
+            catch(e)
+            {
+                alert(e);
+            }
+            return false;
+
+        });
+        $("#btn_reg").click(function(ev)
+        {
+            var nombre =    $("#f_name").val();
+            var rut =       $("#f_rut").val();
+            var apellido =  $("#f_apellido").val();
+            var edad =      $("#f_edad").val();
+            var sexo =      $("input[name='sexo']").val();
+            var email =     $("#f_email").val();
+
+            var img = new Image();
+            img.src = $("#img-preview").attr("src");
+            img.onload = function () 
+            {
+                alert("onload");
+                var canvas = document.createElement("canvas");
+                canvas.width  = this.width;
+                canvas.height = this.height;
+
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(this, 0, 0);
+
+
+                var dataURL = canvas.toDataURL("image/png");
+
+                var foto = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+                opendb().transaction(function(tx)
+                {
+                    try
+                    {
+                            alert("transaction");
+                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts) VALUES (?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime()],
+                            function(t, res)
+                            {
+                                alert("success");
+                                //console.log("Insert id: " + res.insertId);
+                            }, errorhandler);
+
+                    }
+                    catch(exc)
+                    {
+                        alert(exc);
+                    }
+                }, errorhandler, function()
+                {
+                    alert("Cliente ingresado.");
+                    clear_form();
+                });
+            };
+        });
+        $("#btn_sync").click(function(ev)
+        {
+            opendb().readTransaction(function(tx)
+            {
+                alert("readTransaction");
+                tx.executeSql('SELECT * FROM users WHERE ts > ?', [lastSyncTimeStamp],
+                    function(t, res)
+                    {
+                        var tmp_lastSyncTimeStamp = 0;
+                        var sendarr = [];
+                        for (var i = 0; i < res.rows.length; i++)
+                        {
+                            var it = res.rows.item(i);
+                            sendarr.push(it);
+                            tmp_lastSyncTimeStamp = Math.max(lastSyncTimeStamp, it.ts);
+                        }
+                        $.ajax({
+                            url: "http://186.64.120.145:5000/userdb/sync",
+                            dataType: "json",
+                            type: "post",
+                            data:
+                            {
+                                jsondata: JSON.stringify(sendarr)
+                            },
+                            success: function(obj)
+                            {
+                                if (obj.success)
+                                {
+                                    lastSyncTimeStamp = tmp_lastSyncTimeStamp;
+
+                                }
+                            }
+                        });
+                    }, 
+                    function(t, err)
+                    {
+                        alert("asdf");
+                    }
+                 );
             });
+        });
+        
+
+        document.addEventListener("deviceready", function()
+        {
+            opendb().transaction(function(tx)
+            {
+                //alert("creando bdd");
+                tx.executeSql("DROP TABLE users", [], function()
+                {
+                    //alert(":D");
+                    tx.executeSql("CREATE TABLE users (rut TEXT, nombre TEXT, apellido TEXT, foto TEXT, email TEXT, edad TEXT, sexo TEXT, ts INTEGER)", [], function() { alert(":D"); }, function() { alert(":C"); });
+                }, function() { alert(":C"); });
+            }, errorhandler, successhandler);
         },false);
     });
     </script>
