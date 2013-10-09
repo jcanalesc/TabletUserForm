@@ -17,6 +17,11 @@
         width: 100%;
         max-width: 180px;
     }
+    #logo
+    {
+        background: #000 url(logo.jpg) no-repeat;
+        height: 63px;
+    }
     </style>
   </head>
   <!--
@@ -25,15 +30,13 @@
 
 -->
   <body>
-    <nav class="navbar navbar-inverse" role="navigation">
-        <ul class="nav navbar-nav">
-            <img src="logo.jpg" class="col-md-12"/>
-        </ul>
-    </nav>
     <div class="container">
         <div class="row">
-
-            <div class="col-md-6">
+            <div class="col-xs-12" id="logo">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6">
                 <form role="form">
                   <div class="form-group">
                     <label for="f_name">Nombre</label>
@@ -56,23 +59,19 @@
                     <input type="number" class="form-control" id="f_edad" min="0" max="90" step="1" value="18">
                   </div>
                   <div class="form-group">
-                    <label for="f_sexo">Sexo</label>
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="sexo" id="sexoH" value="H" checked>
-                            Hombre
+                    <label>Sexo</label><br />
+                    <div class="btn-group btn-group-justified" data-toggle="buttons" id="f_sexo">
+                        <label class="btn btn-primary active">
+                            <input type="radio" name="sexo" id="sexoM" value="M"> Hombre
                         </label>
-                    </div>
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="sexo" id="sexoM" value="M">
-                            Mujer
+                        <label class="btn btn-danger">
+                            <input type="radio" name="sexo" id="sexoF" value="F"> Mujer
                         </label>
                     </div>
                   </div>
                 </form>
             </div>
-            <div class="col-md-6">
+            <div class="col-xs-6">
                 <div class="form-group">
                     <a href="#" class="thumbnail" id="f_foto">
                         <img id="img-preview">
@@ -81,13 +80,14 @@
                     <center><label for="f_foto">Toque para tomar foto</label></center>
                 </div>
                 <button class="btn btn-primary btn-lg btn-block" id="btn_reg">Registrar</button>
-                <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar con el servidor</button>
+                <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar (pendientes: <span id="pendientes"></span>)</button>
             </div>
         </div>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/holder.js"></script>
@@ -98,21 +98,24 @@
     <script type="text/javascript">
 
     var height_placeholder = 0;
-    var lastSyncTimeStamp = 0;
+    var lastSyncTimeStamp = localStorage.getItem("lastSyncTimeStamp") || 0;
+    var pendientes = localStorage.getItem("pendientes") || 0;
+
+    $("#pendientes").html(pendientes);
     function errorhandler()
     {
-        alert("db error!");
+        //alert("db error!");
     }
     function successhandler()
     {
         //console.log("ok");
-        alert("good");
+        //alert("good");
     }
     function nullHandler() {}
     /*
     function querySuccess(tx, results)
     {
-        alert(results.insertId);
+        //alert(results.insertId);
     }
     */
     function opendb()
@@ -130,6 +133,7 @@
 
     $(function()
     {
+        $.support.cors = true;
         height_placeholder = $("#img-preview").width() / 9 * 16;
         $("#img-preview").attr("data-src", "js/holder.js/100%x"+height_placeholder);
         Holder.run();
@@ -151,13 +155,13 @@
                 };
                 var onFail = function(msg)
                 {
-                    alert(msg);
+                    //alert(msg);
                 };
                 navigator.camera.getPicture(onSuccess, onFail, { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, correctOrientation: true, saveToPhotoAlbum: true, targetHeight: -1, targetWidth: $("#img-preview").width()*2, cameraDirection: navigator.camera.Direction.BACK });
             }
             catch(e)
             {
-                alert(e);
+                //alert(e);
             }
             return false;
 
@@ -168,14 +172,23 @@
             var rut =       $("#f_rut").val();
             var apellido =  $("#f_apellido").val();
             var edad =      $("#f_edad").val();
-            var sexo =      $("input[name='sexo']").val();
+            var sexo =      $("#f_sexo .active input").val();
             var email =     $("#f_email").val();
+            if (nombre.length == 0 || 
+                rut.length == 0 || 
+                apellido.length == 0 || 
+                edad.length == 0 ||
+                email.length == 0)
+            {
+                alert("Complete todos los campos.");
+                return;
+            }
 
             var img = new Image();
             img.src = $("#img-preview").attr("src");
             img.onload = function () 
             {
-                alert("onload");
+                //alert("onload");
                 var canvas = document.createElement("canvas");
                 canvas.width  = this.width;
                 canvas.height = this.height;
@@ -192,7 +205,7 @@
                 {
                     try
                     {
-                            alert("transaction");
+                            //alert("transaction");
                             tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts) VALUES (?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime()],
                             function(t, res)
                             {
@@ -202,12 +215,15 @@
                     }
                     catch(exc)
                     {
-                        alert(exc);
+                        //alert(exc);
                     }
                 }, errorhandler, function()
                 {
                     alert("Cliente ingresado.");
                     clear_form();
+                    pendientes++;
+                    localStorage.setItem("pendientes", pendientes);
+                    $("#pendientes").html(pendientes);
                 });
             };
         });
@@ -215,10 +231,11 @@
         {
             opendb().readTransaction(function(tx)
             {
-                alert("readTransaction");
+                //alert("readTransaction");
                 tx.executeSql('SELECT * FROM users WHERE ts > ?', [lastSyncTimeStamp],
                     function(t, res)
                     {
+                        //alert("success");
                         var tmp_lastSyncTimeStamp = 0;
                         var sendarr = [];
                         for (var i = 0; i < res.rows.length; i++)
@@ -228,9 +245,10 @@
                             tmp_lastSyncTimeStamp = Math.max(lastSyncTimeStamp, it.ts);
                         }
                         $.ajax({
-                            url: "http://186.64.120.145:5000/userdb/sync",
+                            url: "http://186.64.120.145:5000/userdb/sync/",
                             dataType: "json",
                             type: "post",
+                            crossDomain: true,
                             data:
                             {
                                 jsondata: JSON.stringify(sendarr)
@@ -240,6 +258,10 @@
                                 if (obj.success)
                                 {
                                     lastSyncTimeStamp = tmp_lastSyncTimeStamp;
+                                    pendientes = 0;
+                                    localStorage.setItem("pendientes", 0);
+                                    localStorage.setItem("lastSyncTimeStamp", lastSyncTimeStamp);
+                                    $("#pendientes").html("0");
                                 }
                             },
                             error: function(err)
@@ -250,20 +272,16 @@
                     }, 
                     function(t, err)
                     {
-                        alert("asdf");
+                        //alert("asdf: " + err.message);
                     }
                  );
             });
         });
-        
-
-        document.addEventListener("deviceready", function()
+        opendb().transaction(function(tx)
         {
-            opendb().transaction(function(tx)
-            {
-                tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts)",nullHandler, nullHandler);
-            }, nullHandler, nullHandler);
-        });
+            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts)",nullHandler, nullHandler);
+        }, nullHandler, nullHandler);
+
     });
     </script>
   </body>

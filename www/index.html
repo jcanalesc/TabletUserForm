@@ -17,6 +17,11 @@
         width: 100%;
         max-width: 180px;
     }
+    #logo
+    {
+        background: #000 url(logo.jpg) no-repeat;
+        height: 63px;
+    }
     </style>
   </head>
   <!--
@@ -25,15 +30,13 @@
 
 -->
   <body>
-    <nav class="navbar navbar-inverse" role="navigation">
-        <ul class="nav navbar-nav">
-            <img src="logo.jpg" class="col-md-12"/>
-        </ul>
-    </nav>
     <div class="container">
         <div class="row">
-
-            <div class="col-md-6">
+            <div class="col-xs-12" id="logo">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6">
                 <form role="form">
                   <div class="form-group">
                     <label for="f_name">Nombre</label>
@@ -56,23 +59,23 @@
                     <input type="number" class="form-control" id="f_edad" min="0" max="90" step="1" value="18">
                   </div>
                   <div class="form-group">
-                    <label for="f_sexo">Sexo</label>
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="sexo" id="sexoH" value="H" checked>
-                            Hombre
+                    <label for="f_direccion">Edad</label>
+                    <input type="text" class="form-control" id="f_direccion" placeholder="Direccion">
+                  </div>
+                  <div class="form-group">
+                    <label>Sexo</label><br />
+                    <div class="btn-group btn-group-justified" data-toggle="buttons" id="f_sexo">
+                        <label class="btn btn-primary active">
+                            <input type="radio" name="sexo" id="sexoM" value="M"> Hombre
                         </label>
-                    </div>
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="sexo" id="sexoM" value="M">
-                            Mujer
+                        <label class="btn btn-danger">
+                            <input type="radio" name="sexo" id="sexoF" value="F"> Mujer
                         </label>
                     </div>
                   </div>
                 </form>
             </div>
-            <div class="col-md-6">
+            <div class="col-xs-6">
                 <div class="form-group">
                     <a href="#" class="thumbnail" id="f_foto">
                         <img id="img-preview">
@@ -81,13 +84,62 @@
                     <center><label for="f_foto">Toque para tomar foto</label></center>
                 </div>
                 <button class="btn btn-primary btn-lg btn-block" id="btn_reg">Registrar</button>
-                <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar con el servidor</button>
+                <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar (pendientes: <span id="pendientes"></span>)</button>
+                <button class="btn btn-success btn-lg btn-block" id="btn_erase">Borrar datos locales</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="panel panel-default col-xs-12">
+              <div class="panel-heading">
+                <h3 class="panel-title">Preferencias de tragos</h3>
+              </div>
+              <div class="panel-body">
+                <form role="form">
+                    <div class="form-group">
+                        <label>Primera preferencia</label>
+                        <select class="form-control" id="f_pref1">
+                            <option value="vodka">Vodka</option>
+                            <option value="whisky">Whisky</option>
+                            <option value="pisco">Pisco</option>
+                            <option value="ron">Ron</option>
+                            <option value="cerveza">Cerveza</option>
+                            <option value="vino">Vino</option>
+                            <option value="tequila">Tequila</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Segunda preferencia</label>
+                        <select class="form-control" id="f_pref2">
+                            <option value="vodka">Vodka</option>
+                            <option value="whisky">Whisky</option>
+                            <option value="pisco">Pisco</option>
+                            <option value="ron">Ron</option>
+                            <option value="cerveza">Cerveza</option>
+                            <option value="vino">Vino</option>
+                            <option value="tequila">Tequila</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tercera preferencia</label>
+                        <select class="form-control" id="f_pref3">
+                            <option value="vodka">Vodka</option>
+                            <option value="whisky">Whisky</option>
+                            <option value="pisco">Pisco</option>
+                            <option value="ron">Ron</option>
+                            <option value="cerveza">Cerveza</option>
+                            <option value="vino">Vino</option>
+                            <option value="tequila">Tequila</option>
+                        </select>
+                    </div>
+                </form>
+              </div>
             </div>
         </div>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/holder.js"></script>
@@ -95,10 +147,14 @@
     <script type="text/javascript" src="js/Blob.js"></script>
     <script type="text/javascript" src="js/canvas-toBlob.js"></script>
     <script type="text/javascript" src="js/FileSaver.js"></script>
+    <script type="text/javascript" src="js/valida.js"></script>
     <script type="text/javascript">
 
     var height_placeholder = 0;
-    var lastSyncTimeStamp = 0;
+    var lastSyncTimeStamp = localStorage.getItem("lastSyncTimeStamp") || 0;
+    var pendientes = localStorage.getItem("pendientes") || 0;
+
+    $("#pendientes").html(pendientes);
     function errorhandler()
     {
         //alert("db error!");
@@ -131,8 +187,7 @@
     $(function()
     {
         $.support.cors = true;
-
-        height_placeholder = $("#img-preview").width() / 9 * 16;
+        height_placeholder = $("#img-preview").width() / 3 * 4;
         $("#img-preview").attr("data-src", "js/holder.js/100%x"+height_placeholder);
         Holder.run();
 
@@ -170,15 +225,22 @@
             var rut =       $("#f_rut").val();
             var apellido =  $("#f_apellido").val();
             var edad =      $("#f_edad").val();
-            var sexo =      $("input[name='sexo']").val();
+            var sexo =      $("#f_sexo .active input").val();
             var email =     $("#f_email").val();
-            if (nombre.length == 0 || 
-                rut.length == 0 || 
-                apellido.length == 0 || 
-                edad.length == 0 ||
-                email.length == 0)
+            var direccion = $("#f_direccion").val();
+            var pref1 =     $("#f_pref1").val();
+            var pref2 =     $("#f_pref2").val();
+            var pref3 =     $("#f_pref3").val();
+            if (!valida.process({
+                "nombre" : nombre,
+                "rut" : rut,
+                "apellido" : apellido,
+                "edad" : edad,
+                "sexo" : sexo,
+                "email" : email,
+                "direccion" : direccion
+            }))
             {
-                //alert("Complete todos los campos.");
                 return;
             }
 
@@ -204,7 +266,7 @@
                     try
                     {
                             //alert("transaction");
-                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts) VALUES (?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime()],
+                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime(), direccion, pref1, pref2, pref3],
                             function(t, res)
                             {
                                 console.log("Insert id: " + res.insertId);
@@ -217,8 +279,11 @@
                     }
                 }, errorhandler, function()
                 {
-                    //alert("Cliente ingresado.");
+                    alert("Cliente ingresado.");
                     clear_form();
+                    pendientes++;
+                    localStorage.setItem("pendientes", pendientes);
+                    $("#pendientes").html(pendientes);
                 });
             };
         });
@@ -240,7 +305,7 @@
                             tmp_lastSyncTimeStamp = Math.max(lastSyncTimeStamp, it.ts);
                         }
                         $.ajax({
-                            url: "http://handband-server:5000/userdb/sync/",
+                            url: "http://186.64.120.145:5000/userdb/sync/",
                             dataType: "json",
                             type: "post",
                             crossDomain: true,
@@ -253,11 +318,15 @@
                                 if (obj.success)
                                 {
                                     lastSyncTimeStamp = tmp_lastSyncTimeStamp;
+                                    pendientes = 0;
+                                    localStorage.setItem("pendientes", 0);
+                                    localStorage.setItem("lastSyncTimeStamp", lastSyncTimeStamp);
+                                    $("#pendientes").html("0");
                                 }
                             },
                             error: function(err)
                             {
-                                //alert("Error en el servidor.");
+                                alert("Error en el servidor.");
                             }
                         });
                     }, 
@@ -268,10 +337,25 @@
                  );
             });
         });
+        $("#btn_clean").click(function()
+        {
+            opendb().transaction(function(tx)
+            {
+                tx.executeSql("delete from users where ts >= 0", function(t, res)
+                    {
+                        alert("Registros locales borrados.");
+                        pendientes = 0;
+                        localStorage.setItem("pendientes", 0);
+                        $("#pendientes").html(pendientes);
+                    }, nullHandler);
+            }, nullHandler, nullHandler);
+        });
+        
         opendb().transaction(function(tx)
         {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts)",nullHandler, nullHandler);
+            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3)",nullHandler, nullHandler);
         }, nullHandler, nullHandler);
+
     });
     </script>
   </body>
