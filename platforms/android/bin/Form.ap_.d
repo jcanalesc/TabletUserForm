@@ -27,6 +27,7 @@
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/cordova_plugins.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/bootstrap \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/index.html \
+/home/jcanales/github/TabletUserForm/platforms/android/assets/www/logo.jpg \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/plugins \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/img \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js \

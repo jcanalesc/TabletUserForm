@@ -15,7 +15,7 @@
     #img-preview
     {
         width: 100%;
-        max-width: 270px;
+        max-width: 180px;
     }
     </style>
   </head>
@@ -25,6 +25,11 @@
 
 -->
   <body>
+    <nav class="navbar navbar-inverse" role="navigation">
+        <ul class="nav navbar-nav">
+            <img src="logo.jpg" class="col-md-12"/>
+        </ul>
+    </nav>
     <div class="container">
         <div class="row">
 
@@ -76,7 +81,6 @@
                     <center><label for="f_foto">Toque para tomar foto</label></center>
                 </div>
                 <button class="btn btn-primary btn-lg btn-block" id="btn_reg">Registrar</button>
-                <button class="btn btn-success btn-lg btn-block" id="btn_download">Bajar foto</button>
                 <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar con el servidor</button>
             </div>
         </div>
@@ -130,36 +134,7 @@
         $("#img-preview").attr("data-src", "js/holder.js/100%x"+height_placeholder);
         Holder.run();
 
-        $("#btn_download").on("click", function(ev)
-        {
-            try
-            {
-                console.log("btn on click");
-                ev.preventDefault();
-               var img = new Image();
-                img.src = $("#img-preview").attr("src");
-                img.onload = function () 
-                {
-                    //console.log("image onload");
-                    var canvas = document.createElement("canvas");
-                    canvas.width =this.width;
-                    canvas.height =this.height;
-
-                    var ctx = canvas.getContext("2d");
-                    ctx.drawImage(this, 0, 0);
-
-
-                    canvas.toBlob(function(blob)
-                    {
-                        saveAs(blob, "pic.png");
-                    });
-                }; 
-            }
-            catch(e)
-            {
-                alert(e);
-            }
-        });
+        
         $("#btn_clean").on("click", function(ev)
         {
             clear_form();
@@ -221,8 +196,7 @@
                             tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts) VALUES (?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime()],
                             function(t, res)
                             {
-                                alert("success");
-                                //console.log("Insert id: " + res.insertId);
+                                console.log("Insert id: " + res.insertId);
                             }, errorhandler);
 
                     }
@@ -266,8 +240,11 @@
                                 if (obj.success)
                                 {
                                     lastSyncTimeStamp = tmp_lastSyncTimeStamp;
-
                                 }
+                            },
+                            error: function(err)
+                            {
+                                alert("Error en el servidor.");
                             }
                         });
                     }, 
@@ -284,14 +261,9 @@
         {
             opendb().transaction(function(tx)
             {
-                //alert("creando bdd");
-                tx.executeSql("DROP TABLE users", [], function()
-                {
-                    //alert(":D");
-                    tx.executeSql("CREATE TABLE users (rut TEXT, nombre TEXT, apellido TEXT, foto TEXT, email TEXT, edad TEXT, sexo TEXT, ts INTEGER)", [], function() { alert(":D"); }, function() { alert(":C"); });
-                }, function() { alert(":C"); });
-            }, errorhandler, successhandler);
-        },false);
+                tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts)",nullHandler, nullHandler);
+            }, nullHandler, nullHandler);
+        });
     });
     </script>
   </body>

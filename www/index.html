@@ -27,7 +27,7 @@
   <body>
     <nav class="navbar navbar-inverse" role="navigation">
         <ul class="nav navbar-nav">
-            <img src="logo.jpg" />
+            <img src="logo.jpg" class="col-md-12"/>
         </ul>
     </nav>
     <div class="container">
@@ -101,18 +101,18 @@
     var lastSyncTimeStamp = 0;
     function errorhandler()
     {
-        alert("db error!");
+        //alert("db error!");
     }
     function successhandler()
     {
         //console.log("ok");
-        alert("good");
+        //alert("good");
     }
     function nullHandler() {}
     /*
     function querySuccess(tx, results)
     {
-        alert(results.insertId);
+        //alert(results.insertId);
     }
     */
     function opendb()
@@ -130,6 +130,8 @@
 
     $(function()
     {
+        $.support.cors = true;
+
         height_placeholder = $("#img-preview").width() / 9 * 16;
         $("#img-preview").attr("data-src", "js/holder.js/100%x"+height_placeholder);
         Holder.run();
@@ -151,13 +153,13 @@
                 };
                 var onFail = function(msg)
                 {
-                    alert(msg);
+                    //alert(msg);
                 };
                 navigator.camera.getPicture(onSuccess, onFail, { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, correctOrientation: true, saveToPhotoAlbum: true, targetHeight: -1, targetWidth: $("#img-preview").width()*2, cameraDirection: navigator.camera.Direction.BACK });
             }
             catch(e)
             {
-                alert(e);
+                //alert(e);
             }
             return false;
 
@@ -170,12 +172,21 @@
             var edad =      $("#f_edad").val();
             var sexo =      $("input[name='sexo']").val();
             var email =     $("#f_email").val();
+            if (nombre.length == 0 || 
+                rut.length == 0 || 
+                apellido.length == 0 || 
+                edad.length == 0 ||
+                email.length == 0)
+            {
+                //alert("Complete todos los campos.");
+                return;
+            }
 
             var img = new Image();
             img.src = $("#img-preview").attr("src");
             img.onload = function () 
             {
-                alert("onload");
+                //alert("onload");
                 var canvas = document.createElement("canvas");
                 canvas.width  = this.width;
                 canvas.height = this.height;
@@ -192,22 +203,21 @@
                 {
                     try
                     {
-                            alert("transaction");
+                            //alert("transaction");
                             tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts) VALUES (?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime()],
                             function(t, res)
                             {
-                                alert("success");
-                                //console.log("Insert id: " + res.insertId);
+                                console.log("Insert id: " + res.insertId);
                             }, errorhandler);
 
                     }
                     catch(exc)
                     {
-                        alert(exc);
+                        //alert(exc);
                     }
                 }, errorhandler, function()
                 {
-                    alert("Cliente ingresado.");
+                    //alert("Cliente ingresado.");
                     clear_form();
                 });
             };
@@ -216,10 +226,11 @@
         {
             opendb().readTransaction(function(tx)
             {
-                alert("readTransaction");
+                //alert("readTransaction");
                 tx.executeSql('SELECT * FROM users WHERE ts > ?', [lastSyncTimeStamp],
                     function(t, res)
                     {
+                        //alert("success");
                         var tmp_lastSyncTimeStamp = 0;
                         var sendarr = [];
                         for (var i = 0; i < res.rows.length; i++)
@@ -229,9 +240,10 @@
                             tmp_lastSyncTimeStamp = Math.max(lastSyncTimeStamp, it.ts);
                         }
                         $.ajax({
-                            url: "http://186.64.120.145:5000/userdb/sync",
+                            url: "http://handband-server:5000/userdb/sync/",
                             dataType: "json",
                             type: "post",
+                            crossDomain: true,
                             data:
                             {
                                 jsondata: JSON.stringify(sendarr)
@@ -241,32 +253,25 @@
                                 if (obj.success)
                                 {
                                     lastSyncTimeStamp = tmp_lastSyncTimeStamp;
-
                                 }
+                            },
+                            error: function(err)
+                            {
+                                //alert("Error en el servidor.");
                             }
                         });
                     }, 
                     function(t, err)
                     {
-                        alert("asdf");
+                        //alert("asdf: " + err.message);
                     }
                  );
             });
         });
-        
-
-        document.addEventListener("deviceready", function()
+        opendb().transaction(function(tx)
         {
-            opendb().transaction(function(tx)
-            {
-                alert("creando bdd");
-                tx.executeSql("DROP TABLE users", [], function()
-                {
-                    //alert(":D");
-                    tx.executeSql("CREATE TABLE users (rut TEXT, nombre TEXT, apellido TEXT, foto TEXT, email TEXT, edad TEXT, sexo TEXT, ts INTEGER)", [], function() { alert(":D"); }, function() { alert(":C"); });
-                }, function() { alert(":C"); });
-            }, errorhandler, successhandler);
-        });
+            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts)",nullHandler, nullHandler);
+        }, nullHandler, nullHandler);
     });
     </script>
   </body>
