@@ -59,6 +59,10 @@
                     <input type="number" class="form-control" id="f_edad" min="0" max="90" step="1" value="18">
                   </div>
                   <div class="form-group">
+                    <label for="f_direccion">Dirección</label>
+                    <input type="text" class="form-control" id="f_direccion" placeholder="Direccion">
+                  </div>
+                  <div class="form-group">
                     <label>Sexo</label><br />
                     <div class="btn-group btn-group-justified" data-toggle="buttons" id="f_sexo">
                         <label class="btn btn-primary active">
@@ -81,6 +85,54 @@
                 </div>
                 <button class="btn btn-primary btn-lg btn-block" id="btn_reg">Registrar</button>
                 <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar (pendientes: <span id="pendientes"></span>)</button>
+                <button class="btn btn-success btn-lg btn-block" id="btn_clean">Borrar datos locales</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="panel panel-default col-xs-12">
+              <div class="panel-heading">
+                <h3 class="panel-title">Preferencias de tragos</h3>
+              </div>
+              <div class="panel-body">
+                <form role="form">
+                    <div class="form-group">
+                        <label>Primera preferencia</label>
+                        <select class="form-control input-lg" id="f_pref1">
+                            <option value="vodka">Vodka</option>
+                            <option value="whisky">Whisky</option>
+                            <option value="pisco">Pisco</option>
+                            <option value="ron">Ron</option>
+                            <option value="cerveza">Cerveza</option>
+                            <option value="vino">Vino</option>
+                            <option value="tequila">Tequila</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Segunda preferencia</label>
+                        <select class="form-control input-lg" id="f_pref2">
+                            <option value="vodka">Vodka</option>
+                            <option value="whisky">Whisky</option>
+                            <option value="pisco">Pisco</option>
+                            <option value="ron">Ron</option>
+                            <option value="cerveza">Cerveza</option>
+                            <option value="vino">Vino</option>
+                            <option value="tequila">Tequila</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tercera preferencia</label>
+                        <select class="form-control input-lg" id="f_pref3">
+                            <option value="vodka">Vodka</option>
+                            <option value="whisky">Whisky</option>
+                            <option value="pisco">Pisco</option>
+                            <option value="ron">Ron</option>
+                            <option value="cerveza">Cerveza</option>
+                            <option value="vino">Vino</option>
+                            <option value="tequila">Tequila</option>
+                        </select>
+                    </div>
+                </form>
+              </div>
             </div>
         </div>
     </div>
@@ -95,13 +147,20 @@
     <script type="text/javascript" src="js/Blob.js"></script>
     <script type="text/javascript" src="js/canvas-toBlob.js"></script>
     <script type="text/javascript" src="js/FileSaver.js"></script>
+    <script type="text/javascript" src="js/valida.js"></script>
     <script type="text/javascript">
 
     var height_placeholder = 0;
     var lastSyncTimeStamp = localStorage.getItem("lastSyncTimeStamp") || 0;
     var pendientes = localStorage.getItem("pendientes") || 0;
 
+    var tempform = {};
+    if (!localStorage.getItem("tempform"))
+        localStorage.setItem("tempform", "{}");
+
+
     $("#pendientes").html(pendientes);
+
     function errorhandler()
     {
         //alert("db error!");
@@ -133,8 +192,16 @@
 
     $(function()
     {
+        tempform = JSON.parse(localStorage.getItem("tempform"));
+        for (prop in tempform)
+        {
+            $("#" + prop).val(tempform[prop]);
+        }
+        $("#f_sexo label").removeClass("active").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active");
+
+
         $.support.cors = true;
-        height_placeholder = $("#img-preview").width() / 9 * 16;
+        height_placeholder = $("#img-preview").width() / 3 * 4;
         $("#img-preview").attr("data-src", "js/holder.js/100%x"+height_placeholder);
         Holder.run();
 
@@ -174,13 +241,20 @@
             var edad =      $("#f_edad").val();
             var sexo =      $("#f_sexo .active input").val();
             var email =     $("#f_email").val();
-            if (nombre.length == 0 || 
-                rut.length == 0 || 
-                apellido.length == 0 || 
-                edad.length == 0 ||
-                email.length == 0)
+            var direccion = $("#f_direccion").val();
+            var pref1 =     $("#f_pref1").val();
+            var pref2 =     $("#f_pref2").val();
+            var pref3 =     $("#f_pref3").val();
+            if (!valida.process({
+                "nombre" : nombre,
+                "rut" : rut,
+                "apellido" : apellido,
+                "edad" : edad,
+                "sexo" : sexo,
+                "email" : email,
+                "direccion" : direccion
+            }))
             {
-                alert("Complete todos los campos.");
                 return;
             }
 
@@ -206,7 +280,7 @@
                     try
                     {
                             //alert("transaction");
-                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts) VALUES (?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime()],
+                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime(), direccion, pref1, pref2, pref3],
                             function(t, res)
                             {
                                 console.log("Insert id: " + res.insertId);
@@ -224,6 +298,8 @@
                     pendientes++;
                     localStorage.setItem("pendientes", pendientes);
                     $("#pendientes").html(pendientes);
+                    tempform = {};
+                    localStorage.setItem("tempform", "{}");
                 });
             };
         });
@@ -277,9 +353,39 @@
                  );
             });
         });
+
+        $("#btn_clean").click(function()
+        {
+            opendb().transaction(function(tx)
+            {
+                tx.executeSql("DROP TABLE users", [], function(t, res)
+                    {
+                        alert("Registros locales borrados.");
+                        pendientes = 0;
+                        localStorage.setItem("pendientes", 0);
+                        $("#pendientes").html(pendientes);
+                        location.reload();
+                    }, nullHandler);
+            }, nullHandler, nullHandler);
+        });
+
+        $("input, select").change(function()
+        {
+            var id = $(this).attr("id");
+            if (id == "sexoF" || id == "sexoM")
+            {
+                tempform["f_sexo"] = $(this).val();
+            }
+            else
+            {
+                tempform[id] = $(this).val();
+            }
+            localStorage.setItem("tempform", JSON.stringify(tempform));
+        });
+        
         opendb().transaction(function(tx)
         {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts)",nullHandler, nullHandler);
+            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3)",nullHandler, nullHandler);
         }, nullHandler, nullHandler);
 
     });

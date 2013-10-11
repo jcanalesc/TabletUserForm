@@ -59,7 +59,7 @@
                     <input type="number" class="form-control" id="f_edad" min="0" max="90" step="1" value="18">
                   </div>
                   <div class="form-group">
-                    <label for="f_direccion">Edad</label>
+                    <label for="f_direccion">Dirección</label>
                     <input type="text" class="form-control" id="f_direccion" placeholder="Direccion">
                   </div>
                   <div class="form-group">
@@ -85,7 +85,7 @@
                 </div>
                 <button class="btn btn-primary btn-lg btn-block" id="btn_reg">Registrar</button>
                 <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar (pendientes: <span id="pendientes"></span>)</button>
-                <button class="btn btn-success btn-lg btn-block" id="btn_erase">Borrar datos locales</button>
+                <button class="btn btn-success btn-lg btn-block" id="btn_clean">Borrar datos locales</button>
             </div>
         </div>
         <div class="row">
@@ -97,7 +97,7 @@
                 <form role="form">
                     <div class="form-group">
                         <label>Primera preferencia</label>
-                        <select class="form-control" id="f_pref1">
+                        <select class="form-control input-lg" id="f_pref1">
                             <option value="vodka">Vodka</option>
                             <option value="whisky">Whisky</option>
                             <option value="pisco">Pisco</option>
@@ -109,7 +109,7 @@
                     </div>
                     <div class="form-group">
                         <label>Segunda preferencia</label>
-                        <select class="form-control" id="f_pref2">
+                        <select class="form-control input-lg" id="f_pref2">
                             <option value="vodka">Vodka</option>
                             <option value="whisky">Whisky</option>
                             <option value="pisco">Pisco</option>
@@ -121,7 +121,7 @@
                     </div>
                     <div class="form-group">
                         <label>Tercera preferencia</label>
-                        <select class="form-control" id="f_pref3">
+                        <select class="form-control input-lg" id="f_pref3">
                             <option value="vodka">Vodka</option>
                             <option value="whisky">Whisky</option>
                             <option value="pisco">Pisco</option>
@@ -154,7 +154,13 @@
     var lastSyncTimeStamp = localStorage.getItem("lastSyncTimeStamp") || 0;
     var pendientes = localStorage.getItem("pendientes") || 0;
 
+    var tempform = {};
+    if (!localStorage.getItem("tempform"))
+        localStorage.setItem("tempform", "{}");
+
+
     $("#pendientes").html(pendientes);
+
     function errorhandler()
     {
         //alert("db error!");
@@ -186,6 +192,14 @@
 
     $(function()
     {
+        tempform = JSON.parse(localStorage.getItem("tempform"));
+        for (prop in tempform)
+        {
+            $("#" + prop).val(tempform[prop]);
+        }
+        $("#f_sexo label").removeClass("active").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active");
+
+
         $.support.cors = true;
         height_placeholder = $("#img-preview").width() / 3 * 4;
         $("#img-preview").attr("data-src", "js/holder.js/100%x"+height_placeholder);
@@ -284,6 +298,8 @@
                     pendientes++;
                     localStorage.setItem("pendientes", pendientes);
                     $("#pendientes").html(pendientes);
+                    tempform = {};
+                    localStorage.setItem("tempform", "{}");
                 });
             };
         });
@@ -337,18 +353,34 @@
                  );
             });
         });
+
         $("#btn_clean").click(function()
         {
             opendb().transaction(function(tx)
             {
-                tx.executeSql("delete from users where ts >= 0", function(t, res)
+                tx.executeSql("DROP TABLE users", [], function(t, res)
                     {
                         alert("Registros locales borrados.");
                         pendientes = 0;
                         localStorage.setItem("pendientes", 0);
                         $("#pendientes").html(pendientes);
+                        location.reload();
                     }, nullHandler);
             }, nullHandler, nullHandler);
+        });
+
+        $("input, select").change(function()
+        {
+            var id = $(this).attr("id");
+            if (id == "sexoF" || id == "sexoM")
+            {
+                tempform["f_sexo"] = $(this).val();
+            }
+            else
+            {
+                tempform[id] = $(this).val();
+            }
+            localStorage.setItem("tempform", JSON.stringify(tempform));
         });
         
         opendb().transaction(function(tx)
