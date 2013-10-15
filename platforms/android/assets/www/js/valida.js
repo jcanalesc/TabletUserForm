@@ -21,11 +21,18 @@ var valida = {
 		}
 		return true;
 	},
-	edad: function(txt)
+	edad_old: function(txt)
 	{
 		var bool = /^[0-9]+$/.test(txt);
 		if (!bool)
 			alert("Edad incorrecta. Ingrese sólo números.");
+		return bool;
+	},
+	edad: function(txt)
+	{
+		var bool = /^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/.test(txt); // yyyy-mm-dd
+		if (!bool)
+			alert("Fecha incorrecta: " + txt);
 		return bool;
 	},
 	email: function(txt)

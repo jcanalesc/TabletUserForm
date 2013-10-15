@@ -55,8 +55,25 @@
                     <input type="email" class="form-control" id="f_email" placeholder="Email">
                   </div>
                   <div class="form-group">
-                    <label for="f_edad">Edad</label>
-                    <input type="number" class="form-control" id="f_edad" min="0" max="90" step="1" value="18">
+                    <label for="f_edad">Fecha de Nacimiento</label>
+                    <div>
+                        <select name="f_edad_dia" id="f_edad_dia" class="form-control input-lg"></select>
+                        <select name="f_edad_mes" id="f_edad_mes" class="form-control input-lg">
+                            <option value="01">Enero</option>
+                            <option value="02">Febrero</option>
+                            <option value="03">Marzo</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Mayo</option>
+                            <option value="06">Junio</option>
+                            <option value="07">Julio</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                    <input type="number" value="1980" min="1900" max="2013" step="1" name="f_edad_ano" id="f_edad_ano" class="form-control input-lg">
                   </div>
                   <div class="form-group">
                     <label for="f_direccion">Dirección</label>
@@ -198,14 +215,48 @@
         Holder.run();
     }
 
+    function getoptionsrange(start, end)
+    {
+        var res = "";
+        for (var i = start; i <= end; i++)
+        {
+            res += "<option value=\""+ (i > 9 ? ""+i : "0"+i) +"\">"+i+"</option>";
+        }
+        return res;
+    }
+
     $(function()
     {
+        $("#f_edad_ano, #f_edad_mes").change(function()
+        {
+            var mes = parseInt($("#f_edad_mes").val());
+            var ano = parseInt($("#f_edad_ano").val());
+            var dayarray = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            var value = 0;
+            if (mes != 2)
+            {
+                value = dayarray[mes-1];
+            }
+            else
+            {
+                if ((ano%4==0) && ((ano%100!= 0) || (ano%400==0)))
+                    value = 29;
+                else
+                    value = 28;
+            }
+            $("#f_edad_dia").html(getoptionsrange(1,value));
+        }).change();
+        
         tempform = JSON.parse(localStorage.getItem("tempform"));
         for (prop in tempform)
         {
             $("#" + prop).val(tempform[prop]);
         }
         $("#f_sexo label").removeClass("active").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active");
+
+        
+
 
 
         $.support.cors = true;
@@ -246,7 +297,7 @@
             var nombre =    $("#f_name").val();
             var rut =       $("#f_rut").val();
             var apellido =  $("#f_apellido").val();
-            var edad =      $("#f_edad").val();
+            var edad =      $("#f_edad_ano").val() + "-" + $("#f_edad_mes").val() + "-" + $("#f_edad_dia").val();
             var sexo =      $("#f_sexo .active input").val();
             var email =     $("#f_email").val();
             var direccion = $("#f_direccion").val();
