@@ -101,7 +101,7 @@
                     <center><label for="f_foto">Toque para tomar foto</label></center>
                 </div>
                 <button class="btn btn-primary btn-lg btn-block" id="btn_reg">Registrar</button>
-                <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar (pendientes: <span id="pendientes"></span>)</button>
+                <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar <br />(pendientes: <span id="pendientes"></span>)</button>
                 <button class="btn btn-success btn-lg btn-block" id="btn_clean">Borrar datos locales</button>
             </div>
         </div>
@@ -247,7 +247,7 @@
             }
             $("#f_edad_dia").html(getoptionsrange(1,value));
         }).change();
-        
+
         tempform = JSON.parse(localStorage.getItem("tempform"));
         for (prop in tempform)
         {
