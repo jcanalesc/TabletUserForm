@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bootstrap 101 Template</title>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="assets/js/html5shiv.js"></script>
+      <script src="assets/js/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+    #img-preview
+    {
+        width: 100%;
+        max-width: 180px;
+    }
+    #logo
+    {
+        background: #000 url(logo.jpg) no-repeat;
+        height: 63px;
+    }
+    select
+    {
+        -webkit-appearance: listbox;
+    }
+    </style>
+  </head>
+  <!--
+  nombre
+  rut
+
+-->
+  <body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12" id="logo">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6">
+                <form role="form">
+                  <div class="form-group">
+                    <label for="f_name">Nombre</label>
+                    <input type="text" class="form-control" id="f_name" placeholder="Nombre de cliente">
+                  </div>
+                  <div class="form-group">
+                    <label for="f_apellido">Apellido</label>
+                    <input type="text" class="form-control" id="f_apellido" placeholder="Apellido de cliente">
+                  </div>
+                  <div class="form-group">
+                    <label for="f_rut">Rut</label>
+                    <input type="text" class="form-control" id="f_rut" placeholder="Rut de cliente">
+                  </div>
+                  <div class="form-group">
+                    <label for="f_email">Correo electrónico</label>
+                    <input type="email" class="form-control" id="f_email" placeholder="Email">
+                  </div>
+                  <div class="form-group">
+                    <label for="f_edad">Fecha de Nacimiento</label>
+                    <div>
+                        <select name="f_edad_dia" id="f_edad_dia" class="form-control"></select>
+                        <select name="f_edad_mes" id="f_edad_mes" class="form-control">
+                            <option value="01">Enero</option>
+                            <option value="02">Febrero</option>
+                            <option value="03">Marzo</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Mayo</option>
+                            <option value="06">Junio</option>
+                            <option value="07">Julio</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                    <input type="number" value="1980" min="1900" max="2013" step="1" name="f_edad_ano" id="f_edad_ano" class="form-control">
+                  </div>
+                  <div class="form-group">
+                    <label for="f_direccion">Dirección</label>
+                    <input type="text" class="form-control" id="f_direccion" placeholder="Direccion">
+                  </div>
+                  <div class="form-group">
+                    <label>Sexo</label><br />
+                    <div class="btn-group btn-group-justified" data-toggle="buttons" id="f_sexo">
+                        <label class="btn btn-primary active">
+                            <input type="radio" name="sexo" id="sexoM" value="M"> Hombre
+                        </label>
+                        <label class="btn btn-danger">
+                            <input type="radio" name="sexo" id="sexoF" value="F"> Mujer
+                        </label>
+                    </div>
+                  </div>
+                </form>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <a href="#" class="thumbnail" id="f_foto">
+                        <img id="img-preview">
+                    </a>
+                    
+                    <center><label for="f_foto">Toque para tomar foto</label></center>
+                </div>
+                <button class="btn btn-primary btn-lg btn-block" id="btn_reg">Registrar</button>
+                <button class="btn btn-danger btn-lg btn-block" id="btn_sync">Sincronizar <br />(pendientes: <span id="pendientes"></span>)</button>
+                <button class="btn btn-success btn-lg btn-block" id="btn_clean">Borrar datos locales</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="panel panel-default col-xs-12">
+              <div class="panel-heading">
+                <h3 class="panel-title">Preferencias de tragos</h3>
+              </div>
+              <div class="panel-body">
+                <form role="form">
+                    <div class="form-group">
+                        <label>Primera preferencia</label>
+                        <select class="form-control" id="f_pref1">
+                            <option value="vodka">Vodka</option>
+                            <option value="whisky">Whisky</option>
+                            <option value="pisco">Pisco</option>
+                            <option value="ron">Ron</option>
+                            <option value="cerveza">Cerveza</option>
+                            <option value="vino">Vino</option>
+                            <option value="tequila">Tequila</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Segunda preferencia</label>
+                        <select class="form-control" id="f_pref2">
+                            <option value="vodka">Vodka</option>
+                            <option value="whisky">Whisky</option>
+                            <option value="pisco">Pisco</option>
+                            <option value="ron">Ron</option>
+                            <option value="cerveza">Cerveza</option>
+                            <option value="vino">Vino</option>
+                            <option value="tequila">Tequila</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tercera preferencia</label>
+                        <select class="form-control" id="f_pref3">
+                            <option value="vodka">Vodka</option>
+                            <option value="whisky">Whisky</option>
+                            <option value="pisco">Pisco</option>
+                            <option value="ron">Ron</option>
+                            <option value="cerveza">Cerveza</option>
+                            <option value="vino">Vino</option>
+                            <option value="tequila">Tequila</option>
+                        </select>
+                    </div>
+                </form>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/holder.js"></script>
+    <script type="text/javascript" src="phonegap.js"></script>
+    <script type="text/javascript" src="js/Blob.js"></script>
+    <script type="text/javascript" src="js/canvas-toBlob.js"></script>
+    <script type="text/javascript" src="js/FileSaver.js"></script>
+    <script type="text/javascript" src="js/valida.js"></script>
+    <script type="text/javascript">
+
+    var height_placeholder = 0;
+    var lastSyncTimeStamp = parseInt(localStorage.getItem("lastSyncTimeStamp") || 0);
+    var pendientes = 0;
+    opendb().transaction(function(tx)
+    {
+        tx.executeSql("select count(*) as cnt from users where ts > ?", [lastSyncTimeStamp], function(t, res)
+        {
+            pendientes = res.rows.item(0).cnt;
+            $("#pendientes").html(pendientes);
+        }, nullHandler);
+    }, nullHandler, nullHandler);
+
+    var tempform = {};
+    if (!localStorage.getItem("tempform"))
+        localStorage.setItem("tempform", "{}");
+
+
+    
+
+    function errorhandler()
+    {
+        //alert("db error!");
+    }
+    function successhandler()
+    {
+        //console.log("ok");
+        //alert("good");
+    }
+    function nullHandler() {}
+    /*
+    function querySuccess(tx, results)
+    {
+        //alert(results.insertId);
+    }
+    */
+    function opendb()
+    {
+        return window.openDatabase("usersdb", "1.0", "Users DB", 2*1024*1024);
+    }
+    function clear_form()
+    {
+        $("input[type='text']").val("");
+        $("#f_edad, #f_email").val("");
+
+        $("#img-preview").attr("src", "js/holder.js/100%x"+height_placeholder);
+        Holder.run();
+    }
+
+    function getoptionsrange(start, end)
+    {
+        var res = "";
+        for (var i = start; i <= end; i++)
+        {
+            res += "<option value=\""+ (i > 9 ? ""+i : "0"+i) +"\">"+i+"</option>";
+        }
+        return res;
+    }
+
+    $(function()
+    {
+        $("#f_edad_ano, #f_edad_mes").change(function()
+        {
+            var mes = parseInt($("#f_edad_mes").val());
+            var ano = parseInt($("#f_edad_ano").val());
+            var dayarray = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            var value = 0;
+            if (mes != 2)
+            {
+                value = dayarray[mes-1];
+            }
+            else
+            {
+                if ((ano%4==0) && ((ano%100!= 0) || (ano%400==0)))
+                    value = 29;
+                else
+                    value = 28;
+            }
+            var prev_value = $("#f_edad_dia").val();
+            $("#f_edad_dia").html(getoptionsrange(1,value));
+            if (prev_value <= value)
+                $("#f_edad_dia").val(prev_value);
+        }).change();
+
+        tempform = JSON.parse(localStorage.getItem("tempform"));
+        for (prop in tempform)
+        {
+            $("#" + prop).val(tempform[prop]);
+        }
+        $("#f_sexo label").removeClass("active").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active");
+
+        
+
+
+
+        $.support.cors = true;
+        height_placeholder = $("#img-preview").width() / 3 * 4;
+        $("#img-preview").attr("data-src", "js/holder.js/100%x"+height_placeholder);
+        Holder.run();
+
+        
+        $("#btn_clean").on("click", function(ev)
+        {
+            clear_form();
+        });
+
+        $("#f_foto").on("click", function(ev)
+        {
+            try
+            {
+                ev.preventDefault();
+                var onSuccess = function(imageURI)
+                {
+                    $("#img-preview").attr("src", imageURI);
+                };
+                var onFail = function(msg)
+                {
+                    //alert(msg);
+                };
+                navigator.camera.getPicture(onSuccess, onFail, { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, correctOrientation: true, saveToPhotoAlbum: true, targetHeight: -1, targetWidth: $("#img-preview").width()*2, cameraDirection: navigator.camera.Direction.BACK });
+            }
+            catch(e)
+            {
+                //alert(e);
+            }
+            return false;
+
+        });
+        $("#btn_reg").click(function(ev)
+        {
+            var nombre =    $("#f_name").val();
+            var rut =       $("#f_rut").val();
+            var apellido =  $("#f_apellido").val();
+            var edad =      $("#f_edad_ano").val() + "-" + $("#f_edad_mes").val() + "-" + $("#f_edad_dia").val();
+            var sexo =      $("#f_sexo .active input").val();
+            var email =     $("#f_email").val();
+            var direccion = $("#f_direccion").val();
+            var pref1 =     $("#f_pref1").val();
+            var pref2 =     $("#f_pref2").val();
+            var pref3 =     $("#f_pref3").val();
+            if (!valida.process({
+                "nombre" : nombre,
+                "rut" : rut,
+                "apellido" : apellido,
+                "edad" : edad,
+                "sexo" : sexo,
+                "email" : email,
+                "direccion" : direccion
+            }))
+            {
+                return;
+            }
+
+            var img = new Image();
+            img.src = $("#img-preview").attr("src");
+            img.onload = function () 
+            {
+                //alert("onload");
+                var canvas = document.createElement("canvas");
+                canvas.width  = this.width;
+                canvas.height = this.height;
+
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(this, 0, 0);
+
+
+                var dataURL = canvas.toDataURL("image/png");
+
+                var foto = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+                opendb().transaction(function(tx)
+                {
+                    try
+                    {
+                            //alert("transaction");
+                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime(), direccion, pref1, pref2, pref3],
+                            function(t, res)
+                            {
+                                console.log("Insert id: " + res.insertId);
+                            }, errorhandler);
+
+                    }
+                    catch(exc)
+                    {
+                        //alert(exc);
+                    }
+                }, errorhandler, function()
+                {
+                    alert("Cliente ingresado.");
+                    clear_form();
+                    pendientes++;
+                    localStorage.setItem("pendientes", pendientes);
+                    $("#pendientes").html(pendientes);
+                    tempform = {};
+                    localStorage.setItem("tempform", "{}");
+                });
+            };
+        });
+        $("#btn_sync").click(function(ev)
+        {
+            opendb().readTransaction(function(tx)
+            {
+                //alert("readTransaction");
+                tx.executeSql('SELECT * FROM users WHERE ts > ?', [lastSyncTimeStamp],
+                    function(t, res)
+                    {
+                        //alert("success");
+                        var tmp_lastSyncTimeStamp = 0;
+                        var sendarr = [];
+                        for (var i = 0; i < res.rows.length; i++)
+                        {
+                            var it = res.rows.item(i);
+                            sendarr.push(it);
+                            tmp_lastSyncTimeStamp = Math.max(lastSyncTimeStamp, it.ts);
+                        }
+                        $.ajax({
+                            url: "http://186.64.120.145:5000/userdb/sync/",
+                            dataType: "json",
+                            type: "post",
+                            crossDomain: true,
+                            data:
+                            {
+                                jsondata: JSON.stringify(sendarr)
+                            },
+                            success: function(obj)
+                            {
+                                if (obj.success)
+                                {
+                                    lastSyncTimeStamp = tmp_lastSyncTimeStamp;
+                                    pendientes = 0;
+                                    localStorage.setItem("pendientes", pendientes);
+                                    localStorage.setItem("lastSyncTimeStamp", lastSyncTimeStamp);
+                                    $("#pendientes").html("0");
+                                }
+                                else
+                                {
+                                    alert("Error al intentar sincronizar.");
+                                }
+                            },
+                            error: function(err)
+                            {
+                                alert("Error en el servidor.");
+                            }
+                        });
+                    }, 
+                    function(t, err)
+                    {
+                        //alert("asdf: " + err.message);
+                    }
+                 );
+            });
+        });
+
+        $("#btn_clean").click(function()
+        {
+            opendb().transaction(function(tx)
+            {
+                tx.executeSql("DROP TABLE users", [], function(t, res)
+                    {
+                        alert("Registros locales borrados.");
+                        pendientes = 0;
+                        localStorage.setItem("pendientes", 0);
+                        $("#pendientes").html(pendientes);
+                        location.reload();
+                    }, nullHandler);
+            }, nullHandler, nullHandler);
+        });
+
+        $("input, select").change(function()
+        {
+            var id = $(this).attr("id");
+            if (id == "sexoF" || id == "sexoM")
+            {
+                tempform["f_sexo"] = $(this).val();
+            }
+            else
+            {
+                tempform[id] = $(this).val();
+            }
+            localStorage.setItem("tempform", JSON.stringify(tempform));
+        });
+        
+        opendb().transaction(function(tx)
+        {
+            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3)",nullHandler, nullHandler);
+        }, nullHandler, nullHandler);
+
+    });
+    </script>
+  </body>
+</html>
