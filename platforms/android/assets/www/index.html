@@ -5,7 +5,7 @@
     <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
-    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="assets/js/html5shiv.js"></script>
@@ -151,15 +151,23 @@
     <script type="text/javascript">
 
     var height_placeholder = 0;
-    var lastSyncTimeStamp = localStorage.getItem("lastSyncTimeStamp") || 0;
-    var pendientes = localStorage.getItem("pendientes") || 0;
+    var lastSyncTimeStamp = parseInt(localStorage.getItem("lastSyncTimeStamp") || 0);
+    var pendientes = 0;
+    opendb().transaction(function(tx)
+    {
+        tx.executeSql("select count(*) as cnt from users where ts > ?", [lastSyncTimeStamp], function(t, res)
+        {
+            pendientes = res.rows.item(0).cnt;
+            $("#pendientes").html(pendientes);
+        }, nullHandler);
+    }, nullHandler, nullHandler);
 
     var tempform = {};
     if (!localStorage.getItem("tempform"))
         localStorage.setItem("tempform", "{}");
 
 
-    $("#pendientes").html(pendientes);
+    
 
     function errorhandler()
     {
@@ -335,9 +343,13 @@
                                 {
                                     lastSyncTimeStamp = tmp_lastSyncTimeStamp;
                                     pendientes = 0;
-                                    localStorage.setItem("pendientes", 0);
+                                    localStorage.setItem("pendientes", pendientes);
                                     localStorage.setItem("lastSyncTimeStamp", lastSyncTimeStamp);
                                     $("#pendientes").html("0");
+                                }
+                                else
+                                {
+                                    alert("Error al intentar sincronizar.");
                                 }
                             },
                             error: function(err)
