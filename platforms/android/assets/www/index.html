@@ -201,6 +201,7 @@
     var height_placeholder = 0;
     var lastSyncTimeStamp = parseInt(localStorage.getItem("lastSyncTimeStamp") || 0);
     var pendientes = 0;
+    var hayfoto = false;
     opendb().transaction(function(tx)
     {
         tx.executeSql("select count(*) as cnt from users where ts > ?", [lastSyncTimeStamp], function(t, res)
@@ -310,10 +311,11 @@
                 var onSuccess = function(imageURI)
                 {
                     $("#img-preview").attr("src", imageURI);
+                    hayfoto = true;
                 };
                 var onFail = function(msg)
                 {
-                    //alert(msg);
+                    
                 };
                 navigator.camera.getPicture(onSuccess, onFail, { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, correctOrientation: true, saveToPhotoAlbum: true, targetHeight: -1, targetWidth: $("#img-preview").width()*2, cameraDirection: navigator.camera.Direction.BACK });
             }
@@ -346,6 +348,17 @@
                 "email" : email,
                 "direccion" : direccion
             }))
+            {
+                return;
+            }
+
+            if (!hayfoto)
+            {
+                alert("No ha sacado foto del cliente.");
+                return;
+            }
+
+            if (!confirm("¿Está seguro de ingresar al cliente '" + nombre + " " + apellido + "' a la base de datos?"))
             {
                 return;
             }
