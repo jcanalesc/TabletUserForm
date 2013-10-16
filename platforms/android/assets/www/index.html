@@ -28,11 +28,22 @@
         -webkit-appearance: listbox;
     }
     </style>
+    <script type="text/javascript" src="js/comunas.js"></script>
+    <script type="text/javascript">
+    function getcomunas()
+    {
+        var res = "";
+        for (var i = 0; i < comunasdata.length; i++)
+        {
+            res += "<option value=\"" + comunasdata[i].codigo + "\">" + comunasdata[i].nombre + "</option>\n";
+        }
+        return res;
+    }
+    </script>
   </head>
   <!--
   nombre
   rut
-
 -->
   <body>
     <div class="container">
@@ -85,12 +96,20 @@
                     <input type="text" class="form-control" id="f_direccion" placeholder="Direccion">
                   </div>
                   <div class="form-group">
+                    <label for="f_comuna">Comuna</label>
+                    <select name="f_comuna" id="f_comuna" class="form-control">
+                        <script type="text/javascript">
+                            document.write(getcomunas());
+                        </script>
+                    </select>
+                  </div>
+                  <div class="form-group">
                     <label>Sexo</label><br />
                     <div class="btn-group btn-group-justified" data-toggle="buttons" id="f_sexo">
-                        <label class="btn btn-primary active">
+                        <label class="btn">
                             <input type="radio" name="sexo" id="sexoM" value="M"> Hombre
                         </label>
-                        <label class="btn btn-danger">
+                        <label class="btn">
                             <input type="radio" name="sexo" id="sexoF" value="F"> Mujer
                         </label>
                     </div>
@@ -127,6 +146,7 @@
                             <option value="cerveza">Cerveza</option>
                             <option value="vino">Vino</option>
                             <option value="tequila">Tequila</option>
+                            <option value="otro">Otro</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -139,6 +159,7 @@
                             <option value="cerveza">Cerveza</option>
                             <option value="vino">Vino</option>
                             <option value="tequila">Tequila</option>
+                            <option value="otro">Otro</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -151,6 +172,7 @@
                             <option value="cerveza">Cerveza</option>
                             <option value="vino">Vino</option>
                             <option value="tequila">Tequila</option>
+                            <option value="otro">Otro</option>
                         </select>
                     </div>
                 </form>
@@ -261,10 +283,8 @@
         {
             $("#" + prop).val(tempform[prop]);
         }
-        $("#f_sexo label").removeClass("active").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active");
-
-        
-
+        $("#f_sexo label").removeClass("active").removeClass("btn-primary");
+        $("#f_sexo label").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active btn-primary");
 
 
         $.support.cors = true;
@@ -312,6 +332,7 @@
             var pref1 =     $("#f_pref1").val();
             var pref2 =     $("#f_pref2").val();
             var pref3 =     $("#f_pref3").val();
+            var comuna =    $("#f_comuna").val();
             if (!valida.process({
                 "nombre" : nombre,
                 "rut" : rut,
@@ -347,7 +368,7 @@
                     try
                     {
                             //alert("transaction");
-                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime(), direccion, pref1, pref2, pref3],
+                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3, comuna) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime(), direccion, pref1, pref2, pref3, comuna],
                             function(t, res)
                             {
                                 console.log("Insert id: " + res.insertId);
@@ -449,6 +470,8 @@
             if (id == "sexoF" || id == "sexoM")
             {
                 tempform["f_sexo"] = $(this).val();
+                $("#f_sexo label").removeClass("active").removeClass("btn-primary");
+                $("#f_sexo label").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active btn-primary");
             }
             else
             {
@@ -459,7 +482,7 @@
         
         opendb().transaction(function(tx)
         {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3)",nullHandler, nullHandler);
+            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3, comuna)",nullHandler, nullHandler);
         }, nullHandler, nullHandler);
 
     });

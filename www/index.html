@@ -35,7 +35,11 @@
         var res = "";
         for (var i = 0; i < comunasdata.length; i++)
         {
-            res += "<option value=\"" + comunasdata[i].codigo + "\">" + comunasdata[i].nombre + "</option>\n";
+            res += "<option value=\"" 
+                + comunasdata[i].codigo 
+                + "\"" 
+                + (comunasdata[i].codigo == 295 ? "selected" : "") + ">" 
+                + comunasdata[i].nombre + "</option>\n";
         }
         return res;
     }

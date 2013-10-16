@@ -120,6 +120,7 @@
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/FileSaver.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/valida.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/jquery.cookie.js \
+/home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/comunas.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/Blob.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/index.js \
 /home/jcanales/github/TabletUserForm/platforms/android/assets/www/js/canvas-toBlob.js \
