@@ -261,8 +261,8 @@
     {
         $("#f_edad_ano, #f_edad_mes").change(function()
         {
-            var mes = parseInt($("#f_edad_mes").val());
-            var ano = parseInt($("#f_edad_ano").val());
+            var mes = parseInt($("#f_edad_mes").val(), 10);
+            var ano = parseInt($("#f_edad_ano").val(), 10);
             var dayarray = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
             var value = 0;
@@ -405,6 +405,7 @@
                     $("#pendientes").html(pendientes);
                     tempform = {};
                     localStorage.setItem("tempform", "{}");
+                    hayfoto = false;
                 });
             };
         });
