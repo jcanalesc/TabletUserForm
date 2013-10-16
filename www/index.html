@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Bootstrap 101 Template</title>
+    <title>Toma de Datos Bar Constitución</title>
     <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
@@ -22,16 +22,28 @@
         background: #000 url(logo.jpg) no-repeat;
         height: 63px;
     }
+    input[type=number]::-webkit-outer-spin-button { margin: 0; }
     select
     {
         -webkit-appearance: listbox;
     }
     </style>
+    <script type="text/javascript" src="js/comunas.js"></script>
+    <script type="text/javascript">
+    function getcomunas()
+    {
+        var res = "";
+        for (var i = 0; i < comunasdata.length; i++)
+        {
+            res += "<option value=\"" + comunasdata[i].codigo + "\">" + comunasdata[i].nombre + "</option>\n";
+        }
+        return res;
+    }
+    </script>
   </head>
   <!--
   nombre
   rut
-
 -->
   <body>
     <div class="container">
@@ -61,8 +73,8 @@
                   <div class="form-group">
                     <label for="f_edad">Fecha de Nacimiento</label>
                     <div>
-                        <select name="f_edad_dia" id="f_edad_dia" class="form-control"></select>
-                        <select name="f_edad_mes" id="f_edad_mes" class="form-control">
+                        <select name="f_edad_dia" id="f_edad_dia" class="form-control "></select>
+                        <select name="f_edad_mes" id="f_edad_mes" class="form-control ">
                             <option value="01">Enero</option>
                             <option value="02">Febrero</option>
                             <option value="03">Marzo</option>
@@ -77,19 +89,27 @@
                             <option value="12">Diciembre</option>
                         </select>
                     </div>
-                    <input type="number" value="1980" min="1900" max="2013" step="1" name="f_edad_ano" id="f_edad_ano" class="form-control">
+                    <input type="number" value="1980" name="f_edad_ano" id="f_edad_ano" class="form-control" min="1920" max="2013" step="1">
                   </div>
                   <div class="form-group">
                     <label for="f_direccion">Dirección</label>
                     <input type="text" class="form-control" id="f_direccion" placeholder="Direccion">
                   </div>
                   <div class="form-group">
+                    <label for="f_comuna">Comuna</label>
+                    <select name="f_comuna" id="f_comuna" class="form-control">
+                        <script type="text/javascript">
+                            document.write(getcomunas());
+                        </script>
+                    </select>
+                  </div>
+                  <div class="form-group">
                     <label>Sexo</label><br />
                     <div class="btn-group btn-group-justified" data-toggle="buttons" id="f_sexo">
-                        <label class="btn btn-primary active">
+                        <label class="btn">
                             <input type="radio" name="sexo" id="sexoM" value="M"> Hombre
                         </label>
-                        <label class="btn btn-danger">
+                        <label class="btn">
                             <input type="radio" name="sexo" id="sexoF" value="F"> Mujer
                         </label>
                     </div>
@@ -126,6 +146,7 @@
                             <option value="cerveza">Cerveza</option>
                             <option value="vino">Vino</option>
                             <option value="tequila">Tequila</option>
+                            <option value="otro">Otro</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -138,6 +159,7 @@
                             <option value="cerveza">Cerveza</option>
                             <option value="vino">Vino</option>
                             <option value="tequila">Tequila</option>
+                            <option value="otro">Otro</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -150,6 +172,7 @@
                             <option value="cerveza">Cerveza</option>
                             <option value="vino">Vino</option>
                             <option value="tequila">Tequila</option>
+                            <option value="otro">Otro</option>
                         </select>
                     </div>
                 </form>
@@ -260,10 +283,8 @@
         {
             $("#" + prop).val(tempform[prop]);
         }
-        $("#f_sexo label").removeClass("active").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active");
-
-        
-
+        $("#f_sexo label").removeClass("active").removeClass("btn-primary");
+        $("#f_sexo label").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active btn-primary");
 
 
         $.support.cors = true;
@@ -311,6 +332,7 @@
             var pref1 =     $("#f_pref1").val();
             var pref2 =     $("#f_pref2").val();
             var pref3 =     $("#f_pref3").val();
+            var comuna =    $("#f_comuna").val();
             if (!valida.process({
                 "nombre" : nombre,
                 "rut" : rut,
@@ -346,7 +368,7 @@
                     try
                     {
                             //alert("transaction");
-                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime(), direccion, pref1, pref2, pref3],
+                            tx.executeSql('INSERT INTO users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3, comuna) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)', [rut, nombre, apellido, foto, email, edad, sexo, (new Date()).getTime(), direccion, pref1, pref2, pref3, comuna],
                             function(t, res)
                             {
                                 console.log("Insert id: " + res.insertId);
@@ -426,17 +448,20 @@
 
         $("#btn_clean").click(function()
         {
-            opendb().transaction(function(tx)
+            if (confirm("Está seguro? Se perderán los datos no sincronizados."))
             {
-                tx.executeSql("DROP TABLE users", [], function(t, res)
-                    {
-                        alert("Registros locales borrados.");
-                        pendientes = 0;
-                        localStorage.setItem("pendientes", 0);
-                        $("#pendientes").html(pendientes);
-                        location.reload();
-                    }, nullHandler);
-            }, nullHandler, nullHandler);
+                opendb().transaction(function(tx)
+                {
+                    tx.executeSql("DROP TABLE users", [], function(t, res)
+                        {
+                            alert("Registros locales borrados.");
+                            pendientes = 0;
+                            localStorage.setItem("pendientes", 0);
+                            $("#pendientes").html(pendientes);
+                            location.reload();
+                        }, nullHandler);
+                }, nullHandler, nullHandler);
+            }
         });
 
         $("input, select").change(function()
@@ -445,6 +470,8 @@
             if (id == "sexoF" || id == "sexoM")
             {
                 tempform["f_sexo"] = $(this).val();
+                $("#f_sexo label").removeClass("active").removeClass("btn-primary");
+                $("#f_sexo label").find("input[value='"+tempform["f_sexo"]+"']").parent().addClass("active btn-primary");
             }
             else
             {
@@ -455,7 +482,7 @@
         
         opendb().transaction(function(tx)
         {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3)",nullHandler, nullHandler);
+            tx.executeSql("CREATE TABLE IF NOT EXISTS users (rut, nombre, apellido, foto, email, edad, sexo, ts, direccion, pref1, pref2, pref3, comuna)",nullHandler, nullHandler);
         }, nullHandler, nullHandler);
 
     });
