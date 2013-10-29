@@ -53,14 +53,14 @@ var valida = {
 			var numero = partes[0].split("").reverse().join("");
 			var dv = partes[1].toLowerCase();
 
-			var mults = [2,3,4,5,6,7,2,3];
+			var mults = [9,8,7,6,5,4,9,8];
 			var suma = 0;
 			for (var i = 0; i < numero.length; i++)
 			{
 				suma += mults[i] * parseInt(numero[i]);
 			}
 
-			var res = 11 - (suma % 11);
+			var res = suma % 11;
 			if (res == 10) res = "k";
 			bool = (""+res == ""+dv);
 		}
